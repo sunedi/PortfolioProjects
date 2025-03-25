@@ -1,0 +1,823 @@
+---
+title: "Statistical Technique"
+author: 'Sunday Edi'
+date: "2023-12-26"
+output: word_document
+---
+
+
+Agriculture is one of the key development in human existence, farming helps to feed billions of people all over the world, this has partly been possible because of extensive research involving how crops are grown. Soil PH and and the factors involving soil management are very important. The dataset used in this report contains observations about soil PH, the type of crops being grown on them, the mineral content Potassium, Nitrogen and Phosphorous and also humidity and temperature. I will attempt to carry out statistical analysis on the dataset, to show relationships between the variables and how they relate with one another. 
+
+
+I will be using a confidence level of 95% indicating a p-value of 0.05.
+
+
+
+Loading and viewing the structure of the dataset. 
+```{r}
+crop_data <- read.csv("Crop_recommendation.csv")
+
+str(crop_data)
+```
+The dataset contains 2200 obsevations and 8 columns
+N - This is the ratio of Nitrogen content in the soil
+P - This is the ratio of Phosphorous in the soil 
+K - This is the ration of Potassium in the soil 
+temperature - Weather temperature in degree Celsius 
+Humidity  - This is the relative humidity in %
+PH - This is the ph value of the soil 
+Rainfall - is the average rainfall measured in mm
+Crop suitable to grow - This is the ideal crop which would grow under certain conditions.
+
+
+Running the head command to see the first 6 rows of the dataset.
+
+
+```{r}
+head(crop_data)
+```
+
+
+The summary command will give me an idea of how spread out the numerical columns are. I can infer from the summary that temperature and ph are normally distributed, because the mean and the medium do not differ so much from each other. I will however need to confirm this graphically by plotting both a boxplot and also a qqnorm plot.  
+```{r}
+summary_stats <- summary(crop_data)
+print(summary_stats)
+```
+
+
+Ploting a boxplot of Nitrogen and Phosphorous using the par(mfrow) to split the screen and plot it side by side. We can see from the Nitrogen boxplot the data is skewed to the right and the same with Phosphorous is also skewed to the right but also having outliers to the right of the data.
+
+```{r}
+par(mfrow = c(1, 2))
+boxplot(crop_data$N, main = "Nitrogen in soil", horizontal = TRUE)
+boxplot(crop_data$P, main = "Phosphorous in soil", horizontal = TRUE)
+```
+
+The Potasium observations has data concentrated to the left and outliers to the right, the temperature observation has its median in the middle as reported earlier but also has outliers to both left and right of the observation, this can be assumed to be a normal distribution. I will further confirm this assumption by plotting both a histogram and a qqplot and examining the distribution. 
+```{r}
+par(mfrow = c(1, 2))
+boxplot(crop_data$K, main = "Potasium in soil", horizontal = TRUE)
+boxplot(crop_data$temperature, main = "Soil Temparature", horizontal = TRUE)
+```
+
+
+The soil observation is left skewed with outliers as well on the left of the data, The PH observations has its median in the middle of the data with outliers on both the left and right.
+```{r}
+par(mfrow = c(1, 2))
+boxplot(crop_data$humidity, main = "Soil Humidity", horizontal = TRUE)
+boxplot(crop_data$ph, main = "Soil PH", horizontal = TRUE)
+```
+
+The rainfall observation is skewed to the right and has outliers also on the right.
+```{r}
+boxplot(crop_data$rainfall, main = "Rainfall (mm)", horizontal = TRUE)
+```
+
+
+Plotting a histogram of both Nitrogen and Phosphorous, as was observed in the box plot, the data is right skewed. 
+```{r}
+par(mfrow = c(1, 2))
+hist(crop_data$N, main = "Nitrogen Distribution", xlab = "Nitrogen", col = "lightblue", border = "black")
+hist(crop_data$P, main = "Phosphorous Distribution", xlab = "Phosphorous", col = "blue", border = "black")
+
+```
+
+
+Potasium as well plotting the histogram shows that it is right skewed while the temperature follows a normal distribution curve with most of the data clustered in the middle 
+```{r}
+par(mfrow = c(1, 2))
+hist(crop_data$K, main = "Potasium Distribution", xlab = "Potasium", col = "green", border = "black")
+hist(crop_data$temperature, main = "Temperature Distribution", xlab = "Temperature (Celsius)", col = "lightblue", border = "black")
+
+
+```
+
+
+The humidity histogram shows that it is left skewed while PH follows a normal distribution. 
+```{r}
+par(mfrow = c(1, 2))
+hist(crop_data$humidity, main = "Humidity Distribution", xlab = "Humidity (%)", col = "blue", border = "black")
+hist(crop_data$ph, main = "PH Distribution", xlab = "Humidity (%)", col = "green", border = "black")
+
+```
+
+The rainfall data is skewed to the right as can be seen with the histogram.
+```{r}
+hist(crop_data$rainfall, main = "Rainfall Distribution", xlab = "Rainfall (mm)", col = "Pink", border = "black")
+```
+
+Plot both Nitrogen and Phosphorous on a QQ Plot and fitting a line through the data point we can conclude graphically that the line does not fit most of the data point well and can say that the data is not normally distributed 
+
+```{r}
+par(mfrow = c(1, 2))
+qqnorm(crop_data$N, main = "Nitrogen Q-Q plot", pch = 1, frame = FALSE)
+qqline(crop_data$N, col = "steelblue", lwd = 2)
+
+qqnorm(crop_data$P, main = "Phosphorous Q-Q plot", pch = 1, frame = FALSE)
+qqline(crop_data$P, col = "steelblue", lwd = 2)
+```
+
+We can also conclude that the Potassium data does not follow a normal distribution as well, however for the temperature most of the data points fit on the line with the exception of outliers, we can conclude that it is approximately normal 
+```{r}
+par(mfrow = c(1, 2))
+qqnorm(crop_data$K, main = "Potassium Q-Q plot", pch = 1, frame = FALSE)
+qqline(crop_data$K, col = "steelblue", lwd = 2)
+
+qqnorm(crop_data$temperature,main = "Temperature Q-Q plot", pch = 1, frame = FALSE)
+qqline(crop_data$temperature, col = "steelblue", lwd = 2)
+```
+
+We can also conclude that the Humidity data does not follow a normal distribution as well, however for the PH most of the data points fit on the line with the exception of outliers, we can conclude that it is approximately normal. 
+```{r}
+par(mfrow = c(1, 2))
+qqnorm(crop_data$humidity, main = "Humidity Q-Q plot", pch = 1, frame = FALSE)
+qqline(crop_data$humidity, col = "steelblue", lwd = 2)
+
+qqnorm(crop_data$ph, main = "PH Q-Q plot", pch = 1, frame = FALSE)
+qqline(crop_data$ph, col = "steelblue", lwd = 2)
+```
+Lastly we can also conclude from the QQ plot of rainfall that the data does not follow a normal distribution
+```{r}
+qqnorm(crop_data$rainfall, main = "Rainfall Q-Q plot", pch = 1, frame = FALSE)
+qqline(crop_data$rainfall, col = "steelblue", lwd = 2)
+```
+
+
+`
+
+```{r}
+unique(crop_data$crop_suitable_to_grow)
+```
+
+
+
+
+```{r}
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+install.packages("patchwork", repos = "http://cran.us.r-project.org")
+
+```
+
+```{r}
+
+library(tidyverse)
+library(patchwork)
+
+```
+
+
+
+The PH of the soil is very important for plant growth, and when we plot the PH against the crop suitable to grow, we see the medians of crops spread across 5 and 7. According to Frontier Agriculture a PH of 6.5 is beneficial for most crop to thrive on. We will carry out statistical test confirm if our data aligns with this.
+```{r}
+boxplot(crop_data$ph ~ crop_data$crop_suitable_to_grow)
+```
+
+
+
+Single sample t-test
+
+Hypothesis testing: H0: the average PH for crops to do well in is 6.5
+                    H1: the average PH for crops to do well is not 6.5
+                    
+The observation from our sample data is that the average PH level for crops is 6.46. The t.test will prove if this is statistically number significant.
+```{r}
+ph_soil.ttest <- t.test(x=crop_data$ph, mu=6.5)
+
+ph_soil.ttest
+```
+We fail to reject the Null hypothesis as the p-value is greater than 0.05 and conclude that the PH for crops to grow and thrive is 6.5. We can confirm this with a 95% confidence level  
+
+
+
+
+Two sided test for difference of means 
+
+
+The Food and Agricultural Organization of The United Nations classifies Maize and Rice under the Poaceae family. 
+In this two sided test, I want to check if the avearge PH levels needed to grow rice is the same PH levels needed to grow maize. I will carry out a two sided t.test to check the mean of the two PH levels.
+
+
+We will be using the library tidy verse and I have attached the dataset so as to make writing the code in R easier when referencing the columns in the data
+```{r}
+attach(crop_data)
+```
+
+
+
+Here I am piping the crop_data and filtering for only Maize and Rice as those are the two category I want to test for. Earlier, we confirmed graphically that the PH column follows a normal distribution so using a parametric t.test is appropriate.
+
+H0: The mean of maize and rice are the same 
+H1: The mean of maize is less than rice 
+```{r}
+crop_data %>% 
+  filter(crop_suitable_to_grow %in% c("rice", "maize")) %>% 
+  t.test(ph ~ crop_suitable_to_grow, data = .,
+         alternative = "two.sided")
+```
+Given a p-value = 0.0405, we reject the null hypothesis that there is no difference in the mean PH for rice and maize. 
+
+
+
+
+
+One sided T.test for difference of means 
+
+According to the Food and Agriculture Organization of the United Nations,  Watermelon and muskmelon belong to the Cucurbitaceae family.
+
+As a farmer suppose we wants to plant both muskmelon and Watermelon and assume that the PH levels for both crop are the same, and wants to confirm if the PH level of muskmelon is less than that of Watermelon. We will use the One sided test to check if this difference is statistically significant with a confidence level of 95%. 
+
+Plotting the means on a bar plot, graphically it is quite difficult to say if there is a difference in the mean and if even the difference we observe is statistically significant.
+
+```{r}
+cucurbitaceae_table <- crop_data %>% 
+  filter(crop_suitable_to_grow %in% c("watermelon", "muskmelon") ) %>% 
+  group_by(crop_suitable_to_grow) %>% 
+  summarise(mean_ph = mean(ph)) %>%
+  select(mean_ph,crop_suitable_to_grow)
+
+
+  barplot(cucurbitaceae_table$mean_ph~cucurbitaceae_table$crop_suitable_to_grow, col = c("#eb8060", "#b9e38d"))
+  
+  #arrange(mean_ph)
+```
+
+
+
+```{r}
+crop_data %>% 
+  filter(crop_suitable_to_grow %in% c("watermelon","muskmelon")) %>% 
+  mutate(csg = factor(crop_suitable_to_grow, levels = c("watermelon","muskmelon"))) %>% 
+  t.test(ph ~ crop_suitable_to_grow, data =.,
+         alternative = "less",
+         conf.level = 0.95)
+```
+
+Having a p-value = 0.0001135 we have sufficient evidence to reject the null hypothesis that the mean PH levels are the same 
+
+
+
+
+
+Analysis of Variance 
+
+The Fabaceae family which includes Chickpea, kidney beans, pigeon peas, moth beans, mung bean, black gram, and lentil has been filtered from the dataset. The aim here is to use ANOVA to test the difference in the soil mean of PH levels of these crop family. 
+
+```{r}
+fabaceae <- crop_data %>% 
+  filter(crop_suitable_to_grow %in% c("pigeonpeas", "mothbeans","mungbean","blackgram","pigeonpeas","lentil", "chickpea","kidneybeans")) %>% 
+  select(crop_suitable_to_grow, ph)
+```
+
+
+
+The box plot of the Fabaceae family filter from the data shows the median clustered around PH soil value range of 6 -7.
+```{r}
+boxplot(fabaceae$ph ~ as.factor(fabaceae$crop_suitable_to_grow), xlab = "Crop suitable to grow", ylab = "PH Level", main = "Fabaceae family")
+```
+
+
+
+We canobserve a difference of means from the Fabaceae family when we plot both a box plot and bar plot, however is this difference we see statiscally significant and can we say with 95% confidence that the difference is significant. An ANOVA test will confirm this. We assume equal variane as the sample are coming from the same PH distribution
+```{r}
+fabaceae %>% 
+  group_by(crop_suitable_to_grow) %>% 
+  summarise(meanph = mean(ph)) %>% 
+  arrange(meanph)
+```
+
+
+```{r}
+fabaceae_table <- fabaceae %>% 
+  group_by(crop_suitable_to_grow) %>% 
+  summarise(meanph = mean(ph)) %>% 
+  select(crop_suitable_to_grow,meanph) 
+  
+  barplot(fabaceae_table$meanph ~ fabaceae_table$crop_suitable_to_grow, main= "Mean PH of Fabaceae family of crop", col = c("#eb8060", "#b9e38d", "#a1e9f0", "#d9b1f0","#cad620","#444713","#7e20d6"))
+  
+  
+  
+```
+H0: The mean across the group of Fabaceae family are the same 
+H1: The mean across the group of Fabaceae family are not the same
+
+```{r}
+fabaceae %>% 
+  aov(ph ~ crop_suitable_to_grow, data =.) %>% 
+  summary()
+```
+Having a p-value = 2e-16 we can reject the null hypothesis that the mean are the same 
+
+Although we have concluded that there is at least a difference in the mean, we however do not know which crop differs in mean to the other. Using the TukeyHSD we can show where the difference occur
+```{r}
+fabaceae %>% 
+  aov(ph ~ crop_suitable_to_grow, data =.) %>% 
+  TukeyHSD()
+```
+We can see the difference in mean using the tukeyHSD, which takes each combination of crop_suitable_to_grop and pairs them. So far it has considered the difference between the each pair and stated the adjusted p-value.
+
+Just to point out: chickpea-blackgram, there is a difference of 0.20300499, with a lower limit of -0.1623314 and an upper limit of 0.56834138, this confidence interval includes the value of 0, this would mean there is no difference in the mean between chickpea and blackgram. Having an adjusted p-value of 0.6542447 suggest that there is no difference in the mean and we go with the null hypothesis 
+
+The Opposite can be observed between kidneybeans-blackgram when the p-value is practically 0.0, and we will have to go with the alternate hypothesis.
+
+
+
+
+
+Chi squared goodness of fit test
+
+According to the Royal Horticultural Society we can classify soil types with the level of acidity or alkalinity in the soil and this can be measured using the PH level. When you measure your soils PH level we can group the soil type into 
+"Very acid soil" when the PH value is between 3.0 - 5.0 
+"Acid soil" PH level between 5.1 - 6.0
+"Moderately acid soil" PH level between 6.1 - 7.0
+"Alkaline soil" PH level between 7.1 - 8.0 
+
+Question: is there a statistically significant difference in the proportion of soil that are 'Very acid soil', 'Acid soil', 'Moderately acid soil' and 'Alkaline soil' using a alpha = 0.05
+
+
+
+H0: The proportion of soil that are 'Very acid soil', 'Acid soil', 'Moderately acid soil', 'Alkaline soil' are equal
+H1: The proportion of soil that are 'Very acid soil', 'Acid soil', 'Moderately acid soil', 'Alkaline soil' are not equal 
+
+Looking at the graph below we see the proportion of soil type to be different, the question now is to confirm if this difference statistically significant 
+```{r}
+df <- data.frame(crop_data$ph, crop_data$crop_suitable_to_grow)
+```
+
+
+```{r}
+df$phlevels <- cut(crop_data$ph,
+                   breaks=c(0, 5, 6, 7, 8),
+                   labels=c('Very acid soil', 'Acid soil', 'Moderately acid soil', 'Alkaline soil'))
+head(df)
+```
+
+
+```{r}
+table(df$phlevels)
+```
+
+
+```{r}
+barplot(table(df$phlevels), col = c("#eb8060","#a1e9f0" ,  "#b9e38d", "#d9b1f0"))
+```
+
+
+```{r}
+chisq.test(table(df$phlevels))
+```
+p value = 2.2e-16 if the proportions were equal, the probability of the sample data providing a difference of this magnitude or more is less than 0.05 therefore we reject the Null H0 hypothesis that the PH of soil types are equal.
+
+
+
+
+
+Chi Squared Test of Independence
+
+H0: The variables are independent. There is no relationship between the variables 
+Knowing the value of one variable does not help to predict the value of the other variable
+
+H1: The variable are dependent. Knowing the value of one variable does help to predict the value of the other variable 
+
+
+```{r}
+table(df$crop_data.crop_suitable_to_grow,df$phlevels)
+```
+
+```{r}
+chisq.test(table(df$crop_data.crop_suitable_to_grow,df$phlevels))
+```
+One of the criteria for conducting the Chi-squared test of independence is that the cell value of the frequency table should not be less than 5 and thus I get a warning when I proceed with my Ch-squared test of independence.
+The null hypothesis is being rejected as the p-value is less than 0.05 however, this result could be biased due to the missing cell values in my frequency table.
+
+
+
+In an attempt to ensure that the frequency in each cell is at least 5, I have grouped the temperature data into 3 category, low, optimal and high. Referencing the article written by the EOS Data Analytics about soil temperature as a factor of crop development, where the average soil temperature for bioactivity range from 10 - 24 degrees. 
+
+Using the Chi-Squared Test of independence to see if there is a relationship between temperature and soil PH 
+
+```{r}
+df1 <- data.frame(crop_data$temperature, crop_data$ph,crop_data$crop_suitable_to_grow )
+df1$templevels <- cut(crop_data$temperature,
+                   3,
+                   labels=c('Low', 'Optimal', 'High'))
+df1$phlevels <- cut(crop_data$ph,
+                   breaks=c(0, 5, 6, 7, 8),
+                   labels=c('Very acid soil', 'Acid soil', 'Moderately acid soil', 'Alkaline soil'))
+head(df1)
+```
+
+```{r}
+table(df1$templevels,df1$phlevels)
+```
+
+H0: There is no relationship between the temperature and ph of soil. the variable are independent.
+H1: The variables are dependent
+
+```{r}
+chisq.test(table(df1$templevels,df1$phlevels))
+```
+After running the code we see that there is no warning message which occured earlier.
+Also having a p-value of 7.394e-09 indicate that there is in fact a relationship between temperature and soil ph the null hypothesis is rejected.
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+library(ggplot2) 
+library(GGally) 
+```
+
+
+
+
+
+Correlation Analysis
+
+In this section we want to check the effect of temperature on the soil PH level
+I will be using scatter plot, the correlation function and linear regression, the response variable here will be the PH level 
+
+
+Using ggpairs to plot the correlation between the numeric varioables in the dataset 
+```{r}
+crop_data %>% 
+  select(N,P,K,temperature,humidity,ph,rainfall) %>% 
+  #pairs()
+  ggpairs()
+```
+
+
+
+
+```{r}
+plot(crop_data$temperature,  crop_data$ph, main="Scatterplot of PH and Temperature", xlab="Temperature ", ylab="PH level", pch=19)
+abline(lm(ph ~ temperature, data=crop_data), col= "blue")
+```
+The scatter plot does not show any relationship between the temperature and soil ph. However we see data points concentrated at 20 degrees to 30 degrees intervals. 
+
+```{r}
+cor(crop_data$ph,crop_data$temperature)
+```
+Calculating the correlation coefficient we see that it is small and negative, which is not surprising as we know that an increase in temperature has a negative effect on soil PH. This effect is however not a strong one.
+
+
+Although the correlation coefficient is small, I would like to see how this variable performs in a linear model.
+```{r}
+crop_data %>% 
+  lm(ph ~ temperature, data=.) %>% 
+  summary()
+```
+Looking at the summary of the simple linear model, we can see a very small F-statitics and a p-value of 0.4041, this confirms that the variable temperature is a poor predictor of soil PH. The R-squared which tells us how much our model can predict soil PH is approximately zero. 
+
+
+
+
+
+
+
+
+
+
+
+
+#NoN Parametric Test
+
+
+Are you having trouble speaking or understanding? Are you suddenly confused? There is a numbness or weakness in your face, arm or leg? These questions are being asked because you might be having a stroke. Stroke has been a life threatening medical condition which affect millions of people around the world. In 2013 approximately 6.9 people had ischemic stroke and 3.4 million people had hermorrhagic stroke. 
+
+In this second part of the report, I will be using data about stroke patient to carry out statistical techniques, attempting to create a logistic model that predicts the likelihood a patient will have stroke. The techniques in this section will be non parametric and I will be using an alpha value of 0.05.
+
+The data set contains 4908 observation and 12 columns.
+Id: This is a unique identifier to each patient
+Gender: Sex of the patient 
+Age: Age of the patient
+Hypertension: This column indicates if the patient has hypertension or not
+heart_disease: This column indicates if the patient has hearty disease
+Ever_married: Contains information about the marital status of the patient
+work_type: The occupation which the patient does
+Residence_type: This contains the area where the patient stays 
+avg_glucose_level: The average glucose level measured
+BMI: Body mass index of the patient
+Smoking_status: Indicates the smoking status of the patient
+Stroke: Indicates if the patient had stroke     
+
+```{r}
+stroke_data <- read.csv("healthcare_dataset_stroke.csv")
+head(stroke_data)
+```
+
+```{r}
+dim(stroke_data)
+```
+
+
+
+```{r}
+str(stroke_data)
+```
+
+```{r}
+summary(stroke_data)
+```
+
+Looking at the data set we see that hypertension contains either 1 or 0, representing having hypertension or not having hypertension, I will clean this column so the new values will represent 1 for Yes and 0 for No and also store it as a factor, so that R knows to treat the column as a categorical variable rather than character.
+```{r}
+stroke_data[stroke_data$hypertension==0,]$hypertension <- "No"
+stroke_data[stroke_data$hypertension==1,]$hypertension <- "Yes"
+stroke_data$hypertension <- as.factor(stroke_data$hypertension)
+```
+
+I will do the same with heart_disease and every other column that has the same format 
+```{r}
+stroke_data[stroke_data$heart_disease==0,]$heart_disease <- "No"
+stroke_data[stroke_data$heart_disease==1,]$heart_disease <- "Yes"
+stroke_data$heart_disease <- as.factor(stroke_data$heart_disease)
+```
+
+
+
+```{r}
+stroke_data[stroke_data$stroke==0,]$stroke <- "No"
+stroke_data[stroke_data$stroke==1,]$stroke <- "Yes"
+stroke_data$stroke <- as.factor(stroke_data$stroke)
+```
+
+
+```{r}
+stroke_data$ever_married <- as.factor(stroke_data$ever_married)
+stroke_data$work_type <- as.factor(stroke_data$work_type)
+stroke_data$Residence_type <- as.factor(stroke_data$Residence_type)
+stroke_data$smoking_status <- as.factor(stroke_data$smoking_status)
+stroke_data$gender <- as.factor(stroke_data$gender)
+```
+
+
+After cleaning the data and transforming column we can take a glimpse at the data set to see that all changes have been effected 
+```{r}
+glimpse(stroke_data)
+```
+
+
+
+```{r}
+attach(stroke_data)
+```
+
+Plotting the histogram of the numeric columns so we can have an idea of what the spread and shape of the data is.
+
+Since we will be carrying out non parametric test with this data, we make no assumptions of normality.
+
+```{r}
+par(mfrow = c(1, 3))
+hist(age)
+hist(avg_glucose_level)
+hist(bmi)
+```
+
+
+Plotting QQ Plot of the dataset 
+```{r}
+
+qqnorm(age)
+qqline(age)
+
+
+```
+
+```{r}
+qqnorm(avg_glucose_level)
+qqline(avg_glucose_level)
+```
+
+
+
+```{r}
+qqnorm(bmi)
+qqline(bmi)
+```
+
+
+
+The table below shows that stroke patients and patients without stroke are both represented in the female and male samples 
+```{r}
+xtabs(~ stroke + gender, data=stroke_data)
+```
+
+There is also a good representation of patient who had stroke and hypertension
+```{r}
+xtabs(~ stroke + hypertension, data=stroke_data)
+```
+
+
+
+There is a good representation of patient with heart disease in relations to stroke
+```{r}
+xtabs(~ stroke + heart_disease, data=stroke_data)
+```
+
+
+The marital status of patient is also well represented 
+```{r}
+xtabs(~ stroke + ever_married, data=stroke_data)
+```
+
+There is little to no representation when it concerns children and patients who never worked having stroke, this might potentially get in the way of finding the best fitting line. I will however still utilize this coulumn and see what effects it has.
+```{r}
+xtabs(~ stroke + work_type, data=stroke_data)
+```
+
+
+```{r}
+xtabs(~ stroke + Residence_type, data=stroke_data)
+```
+
+
+```{r}
+xtabs(~ stroke + smoking_status, data=stroke_data)
+```
+
+Wilcox Rank Sum Test
+
+The aim of this test is to confirm if there is a difference in the age of gender in the data. The Box plot 
+
+```{r}
+boxplot(age ~ gender)
+```
+```{r}
+install.packages("gapminder", repos = "http://cran.us.r-project.org")
+library(gapminder)
+install.packages("ggstatsplot", repos = "http://cran.us.r-project.org")
+library(ggstatsplot)
+install.packages("effects",repos = "http://cran.us.r-project.org")
+library(effects)
+```
+
+
+
+
+H0: The median difference between the ages is zero
+H1: The median difference between the ages is not zero 
+Alpha = 0.05
+```{r}
+ggbetweenstats(
+  data = stroke_data,
+  x = gender,
+  y = age,
+  type = "nonparametric"
+)
+```
+```{r}
+wilcox.test(stroke_data$age ~ stroke_data$gender, exact=F)
+```
+
+Given the p-value = 0.1237 we can conclude that the difference in median age between genders in our dataset is zero 
+
+
+
+H0: The median difference between the bmi is zero
+H1: The median difference between the bmi is not zero 
+Alpha = 0.05
+```{r}
+
+ggbetweenstats(
+  data = stroke_data,
+  x = gender,
+  y = bmi,
+  type = "nonparametric"
+)
+```
+```{r}
+wilcox.test(stroke_data$bmi ~ stroke_data$gender, exact=F)
+```
+With a P-value=0.9819 we fail to reject the null hypothesis 
+
+
+
+
+H0: The median difference between the average glucose level is zero
+H1: The median difference between the average glucose level is not zero 
+Alpha = 0.05
+```{r}
+ggbetweenstats(
+  data = stroke_data,
+  x = gender,
+  y = avg_glucose_level,
+  type = "nonparametric"
+)
+```
+
+```{r}
+wilcox.test(stroke_data$avg_glucose_level ~ stroke_data$gender, exact=F)
+```
+
+We reject the null hypothesis and have to agree with the alternate H1 that there is a difference in the average glucose level 
+
+
+
+
+
+```{r}
+install.packages("ggstatsplot")
+```
+```{r}
+library(ggstatsplot)
+```
+
+#Kruskal Walis Test 
+
+To test if the average glucose level across smoking status of patients
+H0 There is no difference across the group 
+H1 There is a difference across the group 
+
+```{r}
+ggbetweenstats(
+  data = stroke_data,
+  x = smoking_status,
+  y = avg_glucose_level,
+  type = "nonparametric"
+)
+```
+```{r}
+kruskal.test(avg_glucose_level ~ smoking_status)
+```
+
+We reject the null hypothesis that there is no observable difference across smoking statuses of patients as the p-value = 3.11e-4 
+this is less than 0.05 
+
+
+
+
+
+#Logistic Regression 
+
+Model1: In this simple logistic regression, we would like to predict the likelihood of stroke using the age of patients.
+
+```{r}
+Model1 <- glm(stroke ~ age, data=stroke_data, family = "binomial")
+summary(Model1)
+```
+We can see that the coefficient of age is 0.074964 and the y intercept is -7.376871. what this means is that for every one increase in age, the predicted probability of stroke increases by 7.49%. Our p-value is less than 0.05 so therefore the coefficients are statistically significant and not due to chance.
+The residual deviance is significantly lower than the null deviance which will suggest a good fit.
+
+The current AIC of this simple model is 1411.7, I will compare this to another model to see which is better. 
+
+
+
+```{r}
+plot(allEffects(Model1))
+```
+The graph shows the effect of age and the probability of having stroke.
+
+
+
+Model2: I will be using gender to predict the likelihood of stroke
+```{r}
+Model2 <- glm(stroke ~ gender, data=stroke_data, family = "binomial")
+summary(Model2)
+```
+We see from the summary that gender is not a good predictor of having stroke as the p-value is 0.629, implying that gender is not significantly impacting the likelihood of stroke.
+
+
+```{r}
+plot(allEffects(Model2))
+```
+The graph shows the probability of having stroke vs your gender. This difference is minimal just have we have seen by the model. 
+
+
+Model3: This is a multi logistic model where I will be using both the categorical and numerical variables in the dataset to predict the likelihood of stroke
+
+```{r}
+Model3 <- glm(stroke ~ ., data=stroke_data, family = "binomial")
+summary(Model3)
+```
+This model has incorporated all the variables in the dataset to predict stroke. We can see that age, hypertension and the average glucose level have significant positive coefficients, their p-values are less than 0.05. This factors indicate a higher possibility of stroke.
+Heart disease might also be associated with higher possibility of stroke however the p-value 0.093 is not statistically significant.
+The non significant predictors are gender, marital status, work type, residence type, BMI and smoking status, these variables have p-value > than 0.05 and are not statistically significant to the model.
+
+The residual deviance is lower than the null deviance which suggests a reasonable fit and the AIC 1397.2 is lower than both model1 and model2
+
+
+
+Lastly Model4: In the previous model we saw variables which did not contribute to the prediction likelihood of stroke. What will be done in this model is to take out those variable and see if the new model makes a better prediction of stroke.
+
+```{r}
+Model4 <- glm(stroke ~ age + hypertension + avg_glucose_level, data=stroke_data, family = "binomial")
+summary(Model4)
+```
+
+This model focuses on the variables that is statistical significance, and we can see all three predictors having a high positive coefficient with p-values less than 0.05, reinforcing their association with stroke. The model is a good fit with the residual deviance being lower than the null deviance.
+The AIC is also lower than the 3 previous models, which suggests a better predictor of stroke.
+
+
+
+Conclusion
+
+We have been able to carry out statistical analysis on two data set. Soil PH is quite interesting as we see that the type of soil in which crop grows can be quite selective/sensitive and we cannot assume that a PH level which is optimal for a crop in the same family or classification will also be ideal for another crop in the same family. A logistic regression model to predict the likelihood of stroke was developed, with age, having hypertension and the average glucose level being strong indicators to the likelihood that a patient has stroke.
